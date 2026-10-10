@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Autoreply Bot</title>
-  <meta name="description" content="Autoreply Bot is an automated customer messaging service.">
+  <meta name="description" content="Autoreply Bot helps businesses manage customer messages with automated replies.">
 
   <style>
     * {
@@ -28,6 +28,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
     }
 
     header h1 {
@@ -47,7 +49,7 @@
     }
 
     .hero h2 {
-      font-size: 42px;
+      font-size: clamp(30px, 5vw, 42px);
       margin-bottom: 15px;
     }
 
@@ -60,12 +62,34 @@
 
     .button {
       display: inline-block;
-      margin-top: 30px;
+      margin-top: 25px;
       padding: 13px 25px;
       background: #111827;
       color: white;
       text-decoration: none;
+      border: 0;
       border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background: #374151;
+    }
+
+    .whatsapp-button {
+      background: #128c50;
+      margin-left: 10px;
+    }
+
+    .whatsapp-button:hover {
+      background: #0d713f;
+    }
+
+    #signupStatus {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #6b7280;
     }
 
     .section {
@@ -84,7 +108,7 @@
       padding: 25px;
       margin-top: 20px;
       border-radius: 10px;
-      box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
     }
 
     footer {
@@ -98,11 +122,29 @@
       color: white;
       text-decoration: none;
     }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 20px;
+      }
+
+      nav a {
+        margin-left: 0;
+        margin-right: 12px;
+      }
+
+      .hero {
+        padding: 60px 20px;
+      }
+
+      .whatsapp-button {
+        margin-left: 0;
+      }
+    }
   </style>
 </head>
 
 <body>
-
   <header>
     <h1>Autoreply Bot</h1>
 
@@ -113,38 +155,52 @@
     </nav>
   </header>
 
-  <section class="hero">
-    <h2>Automated Customer Messaging</h2>
+  <main>
+    <section class="hero">
+      <h2>Automated Customer Messaging</h2>
 
-    <p>
-      Autoreply Bot helps businesses manage customer messages
-      with automated replies and messaging tools.
-    </p>
-
-    <a class="button" href="#about">Learn More</a>
-  </section>
-
-  <section class="section" id="about">
-    <h2>About Autoreply Bot</h2>
-
-    <div class="card">
       <p>
-        Autoreply Bot is a software service designed to help businesses
-        respond to customer messages efficiently using automated messaging.
+        Autoreply Bot helps businesses manage customer messages
+        with automated replies and messaging tools.
       </p>
-    </div>
-  </section>
 
-  <section class="section" id="contact">
-    <h2>Contact</h2>
+      <a class="button" href="#about">Learn More</a>
 
-    <div class="card">
-      <p>
-        For questions or support regarding Autoreply Bot,
-        please contact the business administrator Anuj Dagar.
+      <button
+        class="button whatsapp-button"
+        id="connectWhatsApp"
+        type="button"
+      >
+        Connect WhatsApp
+      </button>
+
+      <p id="signupStatus" role="status" aria-live="polite">
+        WhatsApp connection setup is not finished yet.
       </p>
-    </div>
-  </section>
+    </section>
+
+    <section class="section" id="about">
+      <h2>About Autoreply Bot</h2>
+
+      <div class="card">
+        <p>
+          Autoreply Bot is a software service designed to help businesses
+          respond to customer messages efficiently using automated messaging.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <h2>Contact</h2>
+
+      <div class="card">
+        <p>
+          For questions or support regarding Autoreply Bot,
+          please contact the business administrator Anuj Dagar.
+        </p>
+      </div>
+    </section>
+  </main>
 
   <footer>
     <p>© 2026 Autoreply Bot. All rights reserved.</p>
@@ -153,5 +209,14 @@
     </p>
   </footer>
 
+  <script>
+    const connectButton = document.getElementById("connectWhatsApp");
+    const signupStatus = document.getElementById("signupStatus");
+
+    connectButton.addEventListener("click", function () {
+      signupStatus.textContent =
+        "Connection setup is pending. Please try again after the secure Meta signup integration is completed.";
+    });
+  </script>
 </body>
 </html>
