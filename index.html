@@ -147,7 +147,6 @@
 <body>
   <header>
     <h1>Autoreply Bot</h1>
-
     <nav>
       <a href="#about">About</a>
       <a href="#contact">Contact</a>
@@ -158,7 +157,6 @@
   <main>
     <section class="hero">
       <h2>Automated Customer Messaging</h2>
-
       <p>
         Autoreply Bot helps businesses manage customer messages
         with automated replies and messaging tools.
@@ -166,22 +164,18 @@
 
       <a class="button" href="#about">Learn More</a>
 
-      <button
-        class="button whatsapp-button"
-        id="connectWhatsApp"
-        type="button"
-      >
+      <button class="button whatsapp-button"
+              id="connectWhatsApp" type="button">
         Connect WhatsApp
       </button>
 
       <p id="signupStatus" role="status" aria-live="polite">
-        WhatsApp connection setup is not finished yet.
+        Ready to start WhatsApp signup.
       </p>
     </section>
 
     <section class="section" id="about">
       <h2>About Autoreply Bot</h2>
-
       <div class="card">
         <p>
           Autoreply Bot is a software service designed to help businesses
@@ -192,11 +186,10 @@
 
     <section class="section" id="contact">
       <h2>Contact</h2>
-
       <div class="card">
         <p>
           For questions or support regarding Autoreply Bot,
-          please contact the business administrator Anuj Dagar.
+          please contact the business administrator.
         </p>
       </div>
     </section>
@@ -204,18 +197,70 @@
 
   <footer>
     <p>© 2026 Autoreply Bot. All rights reserved.</p>
-    <p>
-      <a href="/api/privacy">Privacy Policy</a>
-    </p>
+    <p><a href="/api/privacy">Privacy Policy</a></p>
   </footer>
 
   <script>
+    const META_APP_ID = "1612175480652117";
+    const CONFIG_ID = "1612175480652117";
+
     const connectButton = document.getElementById("connectWhatsApp");
     const signupStatus = document.getElementById("signupStatus");
 
+    let fbSdkReady = false;
+
+    window.fbAsyncInit = function () {
+      FB.init({
+        appId: META_APP_ID,
+        autoLogAppEvents: true,
+        xfbml: false,
+        version: "v26.0"
+      });
+
+      fbSdkReady = true;
+    };
+
+    (function (d, s, id) {
+      if (d.getElementById(id)) return;
+
+      const js = d.createElement(s);
+      js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js";
+      js.async = true;
+      js.defer = true;
+
+      d.getElementsByTagName("head")[0].appendChild(js);
+    })(document, "script", "facebook-jssdk");
+
     connectButton.addEventListener("click", function () {
+      if (!fbSdkReady) {
+        signupStatus.textContent =
+          "Meta SDK is still loading. Please try again in a moment.";
+        return;
+      }
+
       signupStatus.textContent =
-        "Connection setup is pending. Please try again after the secure Meta signup integration is completed.";
+        "Opening Meta signup. Complete the steps shown by Meta.";
+
+      FB.login(function (response) {
+        if (response.authResponse && response.authResponse.code) {
+          signupStatus.textContent =
+            "Authorization received. Secure backend exchange still needs to be completed.";
+          console.log("Signup authorization received.");
+        } else {
+          signupStatus.textContent =
+            "Signup was cancelled or authorization was not returned.";
+        }
+      }, {
+        config_id: CONFIG_ID,
+        response_type: "code",
+        override_default_response_type: true,
+        extras: {
+          setup: {},
+          featureType: "whatsapp_business_app_onboarding",
+          sessionInfoVersion: "3"
+        }
+      });
     });
   </script>
 </body>
