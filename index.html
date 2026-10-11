@@ -1,10 +1,12 @@
 <!DOCTYPE html>  <html lang="en">  
 <head>  
   <meta charset="UTF-8">  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-  <title>Autoreply Bot | Connect WhatsApp</title>  
-  <meta name="description" content="Connect WhatsApp Business to Autoreply Bot using Meta Embedded Signup.">    <style>  
-    * { box-sizing: border-box; }  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Autoreply Bot | Connect WhatsApp</title>  
+  <meta name="description"  
+        content="Connect WhatsApp Business to Autoreply Bot using Meta Embedded Signup.">    <style>  
+    * {  
+      box-sizing: border-box;  
+    }  
   
     body {  
       margin: 0;  
@@ -20,7 +22,10 @@
       padding: 20px 7%;  
     }  
   
-    header h1 { margin: 0; }  
+    header h1 {  
+      margin: 0;  
+      font-size: 26px;  
+    }  
   
     main {  
       max-width: 760px;  
@@ -32,10 +37,12 @@
       background: white;  
       padding: 30px;  
       border-radius: 14px;  
-      box-shadow: 0 5px 25px rgba(0,0,0,.07);  
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);  
     }  
   
-    h2 { margin-top: 0; }  
+    h2 {  
+      margin-top: 0;  
+    }  
   
     button {  
       width: 100%;  
@@ -51,7 +58,7 @@
     }  
   
     button:disabled {  
-      opacity: .6;  
+      opacity: 0.6;  
       cursor: wait;  
     }  
   
@@ -67,7 +74,9 @@
       color: #6b7280;  
     }  
   
-    a { color: #0878c9; }  
+    a {  
+      color: #0878c9;  
+    }  
   </style>  </head>  <body>  
   <header>  
     <h1>Autoreply Bot</h1>  
@@ -88,7 +97,7 @@
   </button>  
 
   <p id="status" role="status" aria-live="polite">  
-    Ready to connect.  
+    Loading Meta SDK...  
   </p>  
 
   <p>  
@@ -96,7 +105,9 @@
   </p>  
 </section>
 
-  </main>    <footer>© 2026 Autoreply Bot</footer>    <script>  
+  </main>    <footer>  
+    © 2026 Autoreply Bot  
+  </footer>    <script>  
     "use strict";  
   
     const META_APP_ID = "2919372611766017";  
@@ -109,6 +120,9 @@
     let sdkReady = false;  
     let signupInProgress = false;  
   
+    button.disabled = true;  
+  
+    // Initialize the Meta JavaScript SDK.  
     window.fbAsyncInit = function () {  
       FB.init({  
         appId: META_APP_ID,  
@@ -118,113 +132,139 @@
       });  
   
       sdkReady = true;  
+      button.disabled = false;  
+      status.textContent = "Ready. Tap Connect WhatsApp to continue.";  
     };  
   
+    // Load the official Meta SDK.  
     (function (document, tag, id) {  
-      if (document.getElementById(id)) return;  
+      if (document.getElementById(id)) {  
+        return;  
+      }  
   
       const script = document.createElement(tag);  
+  
       http://script.id = id;  
-      script.src = "https://connect.facebook.net/en_US/sdk.js";  
+      script.src = "https://connect.facebook.net/en\_US/sdk.js";  
       script.async = true;  
       script.defer = true;  
   
       script.onerror = function () {  
         status.textContent =  
-          "Meta SDK could not load. Check your connection and try again.";  
+          "Meta SDK failed to load. Check your internet connection or browser settings.";  
+  
+        button.disabled = true;  
       };  
   
       document.head.appendChild(script);  
     })(document, "script", "facebook-jssdk");  
   
-    function receiveSignupMessage(event) {  
-      if (event.origin !== "https://www.facebook.com" &&  
-          event.origin !== "https://web.facebook.com") {  
+    // Listen for Embedded Signup session messages.  
+    window.addEventListener("message", function (event) {  
+      if (  
+        event.origin !== "https://www.facebook.com" &&  
+        event.origin !== "https://web.facebook.com"  
+      ) {  
         return;  
       }  
   
-      // Session information is useful for completing signup,  
-      // but it is not an access token.  
       try {  
         const data = typeof event.data === "string"  
           ? JSON.parse(event.data)  
           : event.data;  
   
         if (data && data.type === "WA_EMBEDDED_SIGNUP") {  
-          console.log("WhatsApp signup session event received.");  
+          console.log("Embedded Signup session event received.");  
+          console.log("Signup event:", data.event || "Event received");  
         }  
-      } catch (_) {  
-        // Ignore unrelated Facebook messages.  
+      } catch (error) {  
+        // Ignore unrelated messages.  
       }  
-    }  
+    });  
   
-    window.addEventListener("message", receiveSignupMessage);  
-  
+    // Start Meta Embedded Signup.  
     button.addEventListener("click", function () {  
       if (!sdkReady) {  
         status.textContent =  
-          "Meta SDK is loading. Wait a moment and try again.";  
+          "Meta SDK is not ready. Refresh the page and try again.";  
         return;  
       }  
   
-      if (signupInProgress) return;  
+      if (signupInProgress) {  
+        return;  
+      }  
   
       signupInProgress = true;  
       button.disabled = true;  
   
       status.textContent =  
-        "Opening Meta signup. Follow the official prompts.";  
+        "Opening Meta signup. Please complete the steps in the popup.";  
   
-      FB.login(async function (response) {  
-        try {  
-          const authCode = response?.authResponse?.code;  
+      try {  
+        FB.login(async function (response) {  
+          try {  
+            const authCode = response?.authResponse?.code;  
   
-          if (!authCode) {  
+            if (!authCode) {  
+              status.textContent =  
+                "No authorization code received. Signup may have been cancelled or the Meta configuration may be incorrect.";  
+              return;  
+            }  
+  
             status.textContent =  
-              "Meta did not return an authorization code. Signup may have been cancelled, or the configuration may be incorrect.";  
-            return;  
-          }  
+              "Authorization received. Sending code to the backend...";  
   
-          status.textContent =  
-            "Authorization received. Exchanging code securely with the backend...";  
+            const exchangeResponse = await fetch("/api/exchange-token", {  
+              method: "POST",  
+              headers: {  
+                "Content-Type": "application/json"  
+              },  
+              body: JSON.stringify({  
+                code: authCode  
+              })  
+            });  
   
-          const exchangeResponse = await fetch("/api/exchange-token", {  
-            method: "POST",  
-            headers: {  
-              "Content-Type": "application/json"  
-            },  
-            body: JSON.stringify({ code: authCode })  
-          });  
+            const result = await exchangeResponse.json();  
   
-          const result = await exchangeResponse.json();  
+            if (!exchangeResponse.ok || !result.success) {  
+              status.textContent =  
+                result.error || "Backend token exchange failed.";  
+              return;  
+            }  
   
-          if (!exchangeResponse.ok || !result.success) {  
             status.textContent =  
-              result.error ||  
-              "Backend token exchange failed. Check server configuration.";  
-            return;  
-          }  
+              result.message ||  
+              "Authorization code exchanged. Additional WhatsApp setup is still required.";  
   
-          status.textContent =  
-            result.message ||  
-            "Authorization code exchange completed. WhatsApp account setup still needs verification.";  
-        } catch (error) {  
-          status.textContent =  
-            "Could not contact the backend. Check the Vercel deployment and logs.";  
-        } finally {  
-          signupInProgress = false;  
-          button.disabled = false;  
-        }  
-      }, {  
-        config_id: CONFIG_ID,  
-        response_type: "code",  
-        override_default_response_type: true,  
-        extras: {  
-          featureType: "whatsapp_business_app_onboarding",  
-          sessionInfoVersion: "3",  
-          setup: {}  
-        }  
-      });  
+          } catch (error) {  
+            console.error("Signup error:", error);  
+  
+            status.textContent =  
+              "Could not complete signup. Check the backend deployment and logs.";  
+          } finally {  
+            signupInProgress = false;  
+            button.disabled = !sdkReady;  
+          }  
+        }, {  
+          config_id: CONFIG_ID,  
+          response_type: "code",  
+          override_default_response_type: true,  
+          extras: {  
+            featureType: "whatsapp_business_app_onboarding",  
+            sessionInfoVersion: "3",  
+            setup: {}  
+          }  
+        });  
+  
+      } catch (error) {  
+        console.error("Meta login error:", error);  
+  
+        status.textContent =  
+          "Meta signup could not open. Check the Login Configuration and Config ID.";  
+  
+        signupInProgress = false;  
+        button.disabled = !sdkReady;  
+      }  
     });  
   </script>  </body>  
 </html>
