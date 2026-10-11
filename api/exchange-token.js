@@ -1,13 +1,20 @@
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    res.setHeader("Allow", "POST");
+    return res.status(405).json({
+      success: false,
+      error: "Method not allowed"
+    });
   }
 
   try {
     const { code } = req.body || {};
 
     if (!code || typeof code !== "string") {
-      return res.status(400).json({ error: "Missing authorization code" });
+      return res.status(400).json({
+        success: false,
+        error: "Authorization code missing"
+      });
     }
 
     const appId = process.env.META_APP_ID;
@@ -15,7 +22,10 @@ export default async function handler(req, res) {
     const version = process.env.GRAPH_API_VERSION || "v26.0";
 
     if (!appId || !appSecret) {
-      return res.status(500).json({ error: "Server configuration missing" });
+      return res.status(500).json({
+        success: false,
+        error: "Meta environment variables missing"
+      });
     }
 
     const url = new URL(
@@ -26,22 +36,36 @@ export default async function handler(req, res) {
     url.searchParams.set("client_secret", appSecret);
     url.searchParams.set("code", code);
 
-    const metaResponse = await fetch(url.toString());
-    const data = await metaResponse.json();
+    const response = await fetch(url.toString());
+    const data = await response.json();
 
-    if (!metaResponse.ok || !data.access_token) {
-      console.error("Meta token exchange failed:", data.error?.type || "Unknown error");
-      return res.status(400).json({ error: "Meta token exchange failed" });
+    if (!response.ok || !data.access_token) {
+      console.error(
+        "Token exchange failed:",
+        data.error?.type || "Unknown error",
+        data.error?.code || ""
+      );
+
+      return res.status(400).json({
+        success: false,
+        error: "Meta token exchange failed"
+      });
     }
 
-    // Do not return or log the token to the browser.
-    // Secure token storage and WABA/phone ID setup must be added before production use.
+    // Token is deliberately not returned to the browser.
+    // Secure persistent storage must be configured before production use.
+
     return res.status(200).json({
       success: true,
-      message: "Authorization code exchanged. Secure token storage is not configured yet."
+      message: "Token exchange successful; secure storage is not configured."
     });
+
   } catch (error) {
-    console.error("Token exchange error:", error.message);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error("Exchange error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error"
+    });
   }
 }
